@@ -1,0 +1,19 @@
+# ACL de Mosquitto - alarma de puerta (cada cliente solo ve y escribe lo que necesita)
+
+# ESP32: publica sus datos, solo LEE comandos y acks
+user esp_puerta01
+topic write alarma/lab1/puerta01/evento
+topic write alarma/lab1/puerta01/estado
+topic write alarma/lab1/puerta01/armado
+topic write alarma/lab1/puerta01/actuadores
+topic write alarma/lab1/puerta01/disponibilidad
+topic write alarma/lab1/puerta01/telemetria
+topic write alarma/lab1/puerta01/respuesta
+topic read  alarma/lab1/puerta01/comando
+topic read  alarma/lab1/puerta01/ack
+
+# Servicio Python + dashboard: lee todo, solo escribe ack y comando
+user registro_lab1
+topic read  alarma/lab1/puerta01/#
+topic write alarma/lab1/puerta01/ack
+topic write alarma/lab1/puerta01/comando
