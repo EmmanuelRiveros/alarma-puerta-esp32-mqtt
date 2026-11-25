@@ -6,8 +6,8 @@ Equipo: Emmanuel Enrique Riveros Ramirez, Daniel Aguilar Trillas, Rogelio Beltra
 Un ESP32 vigila una puerta, suena un buzzer y enciende un LED al abrirse, y publica cada evento por MQTT a un broker Mosquitto
 con autenticación y ACL. Un servicio en Python guarda los eventos en SQLite, calcula métricas y muestra un dashboard con control del actuador.
 
-> **Sensor:** por ahora el contacto de puerta se simula con un cable puente (GPIO27 a GND = cerrada, sin puente = abierta).
-> El resto del sistema (broker, QoS, ACL, edge, dashboard, lazo cerrado) es real. El sensor magnético se conectará en el mismo pin sin cambiar el código.
+> **Sensor:** contacto magnético MC-38 real en GPIO27 (normalmente abierto: con el imán cerca = cerrada, al alejarlo = abierta). No tiene polaridad: un cable a GPIO27 y el otro a GND.
+> La primera presentación usó un cable puente en su lugar; el cambio al sensor real no requirió modificar el código.
 
 ## Arquitectura
 
@@ -27,7 +27,7 @@ con autenticación y ACL. Un servicio en Python guarda los eventos en SQLite, ca
 
 | Componente | Pin ESP32 | Detalle |
 |---|---|---|
-| Contacto (puente / sensor magnético) | GPIO27 | `INPUT_PULLUP`; a GND = cerrada |
+| Contacto magnético MC-38 | GPIO27 | `INPUT_PULLUP`; a GND = cerrada |
 | Buzzer activo | GPIO26 | con resistencia de 220 Ω |
 | LED | GPIO25 | con resistencia de 220 Ω |
 | Tierra común | GND | riel azul de la protoboard |
@@ -83,7 +83,7 @@ Requisitos: Arduino IDE con soporte ESP32 y la librería **MQTT** de Joel Gaehwi
 1. **Broker.** En `broker/`, ejecuta `iniciar_broker.bat` como administrador. La primera vez pide la contraseña de `esp_puerta01` y de `registro_lab1`. Anota la IP que muestra.
 2. **ESP32.** En `firmware/alarma_puerta01/`, copia `secretos.h.ejemplo` como `secretos.h` y llena Wi-Fi, IP del broker y contraseña. Abre `alarma_puerta01.ino`, compila y sube. Monitor serial a 115200: debe mostrar `WiFi OK` y `MQTT... OK`.
 3. **Servicio.** En `servicio/`, ejecuta `iniciar_servicio.bat` (pide la contraseña de `registro_lab1`) y abre http://localhost:8080.
-4. **Probar.** Quita y pon el puente entre GPIO27 y GND: el dashboard marca abierta/cerrada, el buzzer suena y se registra la duración.
+4. **Probar.** Aleja y acerca el imán del sensor: el dashboard marca abierta/cerrada, el buzzer suena y se registra la duración.
 
 ## Guion de demostración
 
@@ -99,4 +99,4 @@ Requisitos: Arduino IDE con soporte ESP32 y la librería **MQTT** de Joel Gaehwi
 ## Limitaciones
 
 El buffer de eventos del ESP32 está en RAM (si se reinicia antes de enviar, se pierde); el ESP32 siempre arranca armado; el broker no usa TLS;
-el contacto se simula con un puente hasta conectar el sensor magnético.
+el sensor de láminas depende de la distancia y alineación del imán.
